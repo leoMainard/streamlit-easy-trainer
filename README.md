@@ -9,7 +9,7 @@ pip install -r requirements.txt
 ```
 
 ```
-streamlit run src/front/app.py 
+streamlit run "src\streamlit_app\Home 🎈.py"
 ```
 
 or
