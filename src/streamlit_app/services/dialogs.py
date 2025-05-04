@@ -3,7 +3,7 @@ import streamlit as st
 from services.preparator_service import createTextualPreparator
 
 @st.dialog("⚙️ Configure your textual Preparator", width="large")
-def testdialog():
+def textualPreparatorConfigDialog():
     st.write("**Parameters**")
     st.text_input(label="to_lower", key="TP-to_lower", value=None, label_visibility="visible", placeholder="Order : Optionnal[int]")
     st.text_input(label="to_upper", key="TP-to_upper", value=None, label_visibility="visible", placeholder="Order : Optionnal[int]")
@@ -17,3 +17,12 @@ def testdialog():
     if st.button(label="Create Preparator", key="create-preparator", use_container_width=True, type="primary"):
         createTextualPreparator(st.session_state)
         st.rerun()
+
+@st.dialog("⚙️ How to prepare your data ?", width="large")
+def prepareConfigDialog():
+    st.write("**Parameters**")
+    st.checkbox(label="all", key="TP-all", value=False)
+    st.text_input(label="encoder_name_to_fit", key="TP-encoder_name", value=None, label_visibility="visible", placeholder="")
+    st.text_input(label="custom_encoder_to_fit", key="TP-custom_encoder_to_fit", value=None, label_visibility="visible", disabled=True, placeholder="You could use a custom encoder to fit with this preparator")
+    st.text_input(label="custom_encoder_fit", key="TP-custom_encoder_fit", value=None, label_visibility="visible", disabled=True, placeholder="You could use a custom trained encoder with this preparator")
+    
