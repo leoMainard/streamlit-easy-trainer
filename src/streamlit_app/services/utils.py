@@ -10,7 +10,6 @@ def parse_input(user_input: str) -> Optional[Union[int, Tuple[Union[int, bool], 
     if not user_input:
         return None, False
     user_input = user_input.strip()
-    
     # int
     try:
         return int(user_input), False

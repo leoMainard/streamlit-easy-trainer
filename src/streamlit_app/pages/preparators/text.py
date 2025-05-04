@@ -2,22 +2,22 @@ import pandas as pd
 import streamlit as st
 
 from services.dialogs import textualPreparatorConfigDialog, prepareConfigDialog
-from services.preparator_service import getTextualPreparation, createTextualPreparator
+from services.preparator_service import getTextualPreparation, createTextualPreparator, loadTextualPreparatorCode
 
 # ------ session state ------
-if "TP_df" not in st.session_state:
-    st.session_state["TP_df"] = pd.DataFrame(columns=["add_your_text", "prepared_text", "encoded_text"])
+if "TP-df" not in st.session_state:
+    st.session_state["TP-df"] = pd.DataFrame(columns=["add_your_text", "prepared_text", "encoded_text"])
 
 # ------ config ------
 container_config = st.container()
 container_config.subheader("Configure your Preparator")
-container_config.code("## Textual Preparator", language="python")
+container_config.code(loadTextualPreparatorCode(), language="python")
 tab1_c_col1, tab1_c_col2 = container_config.columns(2)
 
-if tab1_c_col1.button("⚙️ TextualPreparator()", use_container_width=True):
+if tab1_c_col1.button("⚙️ TextualPreparator()", use_container_width=True, type="primary"):
     textualPreparatorConfigDialog()
 
-if tab1_c_col2.button("⚙️ TextualPreparator.prepare()", use_container_width=True):
+if tab1_c_col2.button("⚙️ TextualPreparator.prepare()", use_container_width=True, type="primary"):
     prepareConfigDialog()        
 
 container_config.divider()
@@ -31,7 +31,7 @@ container_data.write("**Or add some text directly in the table**")
 # tab1_d_col3.download_button("Download your prepared data", )
 
 container_data.data_editor(
-    data=st.session_state["TP_df"],
+    data=st.session_state["TP-df"],
     key="textual_df",
     num_rows="dynamic",
     disabled=("prepared_text", "encoded_text")

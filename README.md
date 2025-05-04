@@ -18,3 +18,11 @@ go to :
 
 
 Icons :  https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded&selected=Material+Symbols+Rounded:home:FILL@0;wght@400;GRAD@0;opsz@24&icon.size=24&icon.color=%231f1f1f
+":material/toggle_on:"
+
+
+# TODO
+- affichage code preparateur : finir preparator.prepare()
+- help dans les dialogs de config
+- affiner design partie data
+- bouton download edited_table

@@ -1,3 +1,4 @@
+import textwrap
 import pandas as pd
 import streamlit as st
 
@@ -8,12 +9,12 @@ from services.utils import parse_input, popup
 def createTextualPreparator(session_state):
    params = {}
    for key, input_value in session_state.items():
-         if key.startswith("TP-"):
+         if key.startswith("TP_config-"):
             _, method_name = key.split("-")
             value, is_error = parse_input(input_value)
             if is_error:
-               popup(f"Invalid input for {key}. Please enter a valid value (int or tuple).", icon="🚨")
                st.session_state["textual_preparator"] = TextualPreparator()
+               popup(f"Invalid input for {method_name}. Please enter a valid value (int or tuple).", icon="🚨")
                break
 
             if isinstance(value, int) or isinstance(value, tuple):
@@ -28,7 +29,7 @@ def getTextualPreparation(session_state):
         return
 
     preparator = session_state["textual_preparator"]
-    last_df = session_state["TP_df"]
+    last_df = session_state["TP-df"]
     print("last_df", last_df)
     edited_df = session_state.get("textual_df", None)
 
@@ -64,5 +65,28 @@ def getTextualPreparation(session_state):
         popup(f"Error during preparation (new rows): {e}", icon="🚨")
 
     # Mise à jour du session_state final
-    session_state["TP_df"] = last_df.reset_index(drop=True)
+    session_state["TP-df"] = last_df.reset_index(drop=True)
 
+def loadTextualPreparatorCode():
+    return textwrap.dedent(f"""
+        from easytrainer.data.text import TextualPreparator
+
+        preparator = TextualPreparator(
+            to_lower={st.session_state.get("TP_config-to_lower", None)},
+            to_upper={st.session_state.get("TP_config-to_upper", None)},
+            drop_stopwords={st.session_state.get("TP_config-drop_stopwords", None)},
+            drop_digits={st.session_state.get("TP_config-drop_digits", None)},
+            lemmatize={st.session_state.get("TP_config-lemmatize", None)},
+            drop_special_characters={st.session_state.get("TP_config-drop_special_characters", None)},
+            drop_accents={st.session_state.get("TP_config-drop_accents", None)},
+            drop_words_less_than_N_letters={st.session_state.get("TP_config-drop_words_less_than_N_letters", None)}
+        )
+
+        results = preparator.prepare(
+            data=your_data,
+            all=False,
+            encoder_name_to_fit=None,
+            custom_encoder_to_fit=None,
+            custom_encoder_fit=None
+        )
+    """)
