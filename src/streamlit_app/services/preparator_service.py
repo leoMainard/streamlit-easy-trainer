@@ -23,6 +23,7 @@ def createTextualPreparator(session_state):
    st.session_state["textual_preparator"] = TextualPreparator(**params)
    popup(f"Preparator ready !", icon="✅")
 
+
 def getTextualPreparation(session_state):
     if "textual_preparator" not in session_state:
         popup("Configure your Preparator first", icon="🫦")
@@ -30,7 +31,6 @@ def getTextualPreparation(session_state):
 
     preparator = session_state["textual_preparator"]
     last_df = session_state["TP-df"]
-    print("last_df", last_df)
     edited_df = session_state.get("textual_df", None)
 
     # Suppression des lignes supprimées
@@ -39,30 +39,20 @@ def getTextualPreparation(session_state):
         last_df = last_df.drop(row_to_delete, errors="ignore")
 
     # Mise à jour des lignes éditées
-    edited_text = [(index, row.get("add_your_text", "")) for index, row in edited_df.get("edited_rows", {}).items()]
-    for index, new_text in edited_text:
-        try:
-            new_prepared = preparator.prepare([new_text])["data"][0]
-        except Exception as e:
-            popup(f"Error during preparation (edited row {index}): {e}", icon="🚨")
-            new_prepared = None
-        last_df.loc[index, "add_your_text"] = new_text
-        last_df.loc[index, "prepared_text"] = new_prepared
-        last_df.loc[index, "encoded_text"] = None
-
+    for index, row in edited_df.get("edited_rows", {}).items():
+        for col_name, value in row.items():
+            last_df.loc[index, col_name] = value
+    
     # Ajout des nouvelles lignes
-    text_to_prepare = [row.get("add_your_text", "") for row in edited_df["added_rows"]]
+    for row in edited_df.get("added_rows", []):
+        for col_name, value in row.items():
+            last_df.loc[-1, col_name] = value
+
     try:
-        result = preparator.prepare(text_to_prepare)
-        new_df = pd.DataFrame({
-            "add_your_text": text_to_prepare,
-            "prepared_text": result["data"],
-            "encoded_text": [None] * len(text_to_prepare)
-        })
-        last_df = pd.concat([last_df, new_df], ignore_index=True)
-        print("last_df", last_df)
+        result = preparator.prepare(last_df, all=session_state.get("TP-all", False), encoder_name_to_fit=session_state.get("TP-encoder_name", None), custom_encoder_to_fit=None, custom_encoder_fit=None)
+        last_df = result["data"]
     except Exception as e:
-        popup(f"Error during preparation (new rows): {e}", icon="🚨")
+        popup(f"Error during preparation : {e}", icon="🚨")
 
     # Mise à jour du session_state final
     session_state["TP-df"] = last_df.reset_index(drop=True)
@@ -84,9 +74,28 @@ def loadTextualPreparatorCode():
 
         results = preparator.prepare(
             data=your_data,
-            all=False,
-            encoder_name_to_fit=None,
+            all={st.session_state.get("TP-all", False)},
+            encoder_name_to_fit={st.session_state.get("TP-encoder_name", None)},
             custom_encoder_to_fit=None,
             custom_encoder_fit=None
         )
     """)
+
+def readExcelorCSVFile(sesssion_state):
+    df = pd.DataFrame(columns=["add_your_text", "prepared_text", "encoded_text"])
+    uploaded_file = sesssion_state.get("container_data_file", None)
+
+    if uploaded_file is None:
+        st.error("Please upload a file.")
+    else:
+        if uploaded_file.name.endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
+        elif uploaded_file.name.endswith(".xlsx"):
+            df = pd.read_excel(uploaded_file)
+        else:
+            st.error("Unsupported file format.")
+        
+        df["prepared_text"] = ""
+        df["encoded_text"] = ""
+    
+    st.session_state["TP-df"] = df

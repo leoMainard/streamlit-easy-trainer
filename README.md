@@ -22,7 +22,8 @@ Icons :  https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rou
 
 
 # TODO
-- affichage code preparateur : finir preparator.prepare()
-- help dans les dialogs de config
+- problème de preparator qui s'enlève et de prep.prepare() aussi
+- valider fonction de preparation des données
 - affiner design partie data
+- ajouter table de données préparées
 - bouton download edited_table
