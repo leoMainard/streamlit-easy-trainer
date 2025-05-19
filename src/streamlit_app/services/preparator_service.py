@@ -57,25 +57,36 @@ def getTextualPreparation(session_state):
     # Mise à jour du session_state final
     session_state["TP-df"] = last_df.reset_index(drop=True)
 
-def loadTextualPreparatorCode():
+def loadTextualPreparatorCode(session_state):
+    order = getattr(session_state.get("textual_preparator", {}), "order", {})
+    n_letters = getattr(session_state.get("textual_preparator", None), "n_letters", None)
+    n_letters_isalpha = getattr(session_state.get("textual_preparator", None), "n_letters_isalpha", None)
+    
+    prepare_all = session_state.get("textual_preparator_prepare", {}).get("all", None)
+    prepare_encoder_name = session_state.get("textual_preparator_prepare", {}).get("encoder_name_to_fit", None)
+
+    if isinstance(prepare_encoder_name, str):
+        prepare_encoder_name = f'"{prepare_encoder_name}"'
+
     return textwrap.dedent(f"""
         from easytrainer.data.text import TextualPreparator
 
         preparator = TextualPreparator(
-            to_lower={st.session_state.get("TP_config-to_lower", None)},
-            to_upper={st.session_state.get("TP_config-to_upper", None)},
-            drop_stopwords={st.session_state.get("TP_config-drop_stopwords", None)},
-            drop_digits={st.session_state.get("TP_config-drop_digits", None)},
-            lemmatize={st.session_state.get("TP_config-lemmatize", None)},
-            drop_special_characters={st.session_state.get("TP_config-drop_special_characters", None)},
-            drop_accents={st.session_state.get("TP_config-drop_accents", None)},
-            drop_words_less_than_N_letters={st.session_state.get("TP_config-drop_words_less_than_N_letters", None)}
+            to_lower={order.get("txt_to_lower", None)},
+            to_upper={order.get("txt_to_upper", None)},
+            drop_stopwords={order.get("drop_stopwords", None)},
+            drop_big_spaces={order.get("drop_big_spaces", None)},
+            drop_digits={order.get("drop_digits", None)},
+            lemmatize={order.get("lemmatize", None)},
+            drop_special_characters={order.get("drop_special_characters", None)},
+            drop_accents={order.get("drop_accents", None)},
+            drop_words_less_than_N_letters=({order.get("drop_words_less_than_N_letters", None)},{n_letters},{n_letters_isalpha})
         )
 
         results = preparator.prepare(
             data=your_data,
-            all={st.session_state.get("TP-all", False)},
-            encoder_name_to_fit={st.session_state.get("TP-encoder_name", None)},
+            all={prepare_all},
+            encoder_name_to_fit={prepare_encoder_name},
             custom_encoder_to_fit=None,
             custom_encoder_fit=None
         )

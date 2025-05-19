@@ -15,7 +15,7 @@ if "TP-df" not in st.session_state:
 # ------ config ------
 container_config = st.container()
 container_config.subheader("Configure your Preparator")
-container_config.code(loadTextualPreparatorCode(), language="python")
+container_config.code(loadTextualPreparatorCode(st.session_state), language="python")
 tab1_c_col1, tab1_c_col2 = container_config.columns(2)
 
 if tab1_c_col1.button("⚙️ TextualPreparator()", use_container_width=True, type="primary"):
